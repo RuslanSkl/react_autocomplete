@@ -20,7 +20,10 @@ export const DropDownMenu: FC<Props> = ({
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  const applyQuery = useCallback(debounce(changeAppliedQuery, delay), []);
+  const applyQuery = useCallback(
+    debounce((value: string) => changeAppliedQuery(value), delay),
+    [changeAppliedQuery, delay],
+  );
 
   const handlePersonSelection = (person: Person) => {
     changeChosenPerson(person);
@@ -29,9 +32,11 @@ export const DropDownMenu: FC<Props> = ({
   };
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const trimmedValue = event.target.value.trim();
+
     setQuery(event.target.value);
     changeChosenPerson(null);
-    applyQuery(event.target.value.trim());
+    applyQuery(trimmedValue);
   };
 
   return (
@@ -50,14 +55,14 @@ export const DropDownMenu: FC<Props> = ({
           />
         </div>
 
-        {isFocused && people.length && (
+        {isFocused && people.length > 0 && (
           <div className="dropdown-menu" role="menu" data-cy="suggestions-list">
             <div className="dropdown-content">
               {people.map(person => (
                 <div
                   className="dropdown-item"
                   data-cy="suggestion-item"
-                  key={person.slug}
+                  key={person.slug} // Ensure 'slug' is stable and unique
                   onMouseDown={() => handlePersonSelection(person)}
                 >
                   <p
@@ -72,23 +77,23 @@ export const DropDownMenu: FC<Props> = ({
             </div>
           </div>
         )}
-      </div>
 
-      {!people.length && (
-        <div
-          className="
-            notification
-            is-danger
-            is-light
-            mt-3
-            is-align-self-flex-start
-          "
-          role="alert"
-          data-cy="no-suggestions-message"
-        >
-          <p className="has-text-danger">No matching suggestions</p>
-        </div>
-      )}
+        {isFocused && people.length === 0 && (
+          <div
+            className="
+              notification
+              is-danger
+              is-light
+              mt-3
+              is-align-self-flex-start
+            "
+            role="alert"
+            data-cy="no-suggestions-message"
+          >
+            <p className="has-text-danger">No matching suggestions</p>
+          </div>
+        )}
+      </div>
     </>
   );
 };

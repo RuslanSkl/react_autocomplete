@@ -10,16 +10,21 @@ export const App: React.FC = () => {
   const [chosenPerson, setChosenPerson] = useState<Person | null>(null);
   const [appliedQuery, setAppliedQuery] = useState('');
 
-  const filteredPeople = useMemo(
-    () =>
-      peopleFromServer.filter(person => {
-        const normalisedQuery = appliedQuery.toLowerCase();
-        const normalisedPersonName = person.name.toLowerCase();
+  const filteredPeople = useMemo(() => {
+    const trimmedQuery = appliedQuery.trim();
 
-        return normalisedPersonName.includes(normalisedQuery);
-      }),
-    [appliedQuery],
-  );
+    if (!trimmedQuery) {
+      return peopleFromServer;
+    }
+
+    const normalisedQuery = trimmedQuery.toLowerCase();
+
+    return peopleFromServer.filter(person => {
+      const normalisedPersonName = person.name.toLowerCase();
+
+      return normalisedPersonName.includes(normalisedQuery);
+    });
+  }, [appliedQuery]);
 
   return (
     <div className="container">
